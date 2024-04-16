@@ -1,0 +1,112 @@
+CREATE DATABASE IF NOT EXISTS baseproyecto;
+
+CREATE TABLE IF NOT EXISTS factura(
+	`idfactura` INT NOT NULL,
+    `fecha` VARCHAR(45) NOT NULL,
+    `hora` VARCHAR(45) NOT NULL,
+    `totalapagar` INT NOT NULL,
+    `idcliente` INT NOT NULL,
+    PRIMARY KEY (`idfactura`),
+    CONSTRAINT FK_factura_cliente
+		FOREIGN KEY (`idcliente`) REFERENCES cliente(`identificacion`)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION
+);
+
+/* TABLA PEDIDO */
+CREATE TABLE IF NOT EXISTS pedido(
+	`idpedido` INT NOT NULL,
+    `fecha` VARCHAR(45) NOT NULL,
+    `hora` VARCHAR(45) NOT NULL,
+    `estado` VARCHAR(45) NOT NULL,
+    `idcliente` INT NOT NULL,
+    `idfactura` INT NOT NULL,
+    PRIMARY KEY (`idpedido`),
+    CONSTRAINT FK_pedido_cliente
+		FOREIGN KEY (`idcliente`) REFERENCES cliente(`identificacion`)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION,
+	CONSTRAINT FK_pedido_factura
+		FOREIGN KEY (`idfactura`) REFERENCES factura(`idfactura`)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION
+);
+
+/* TABLA SERVICIOPRODUCTO */
+CREATE TABLE IF NOT EXISTS servicioproducto(
+	`idservicioproducto` INT NOT NULL,
+    `nombre` VARCHAR(45) NOT NULL,
+    `descripcion` VARCHAR(45) NOT NULL,
+    `precio` VARCHAR(45) NOT NULL,
+    `categoria` VARCHAR(45) NOT NULL,
+    PRIMARY KEY (`idservicioproducto`)
+);
+
+/* TABLA DETALLE PEDIDO */
+CREATE TABLE IF NOT EXISTS detallepedido(
+	`iddetallepedido` INT NOT NULL,
+	`cantidad` INT NOT NULL,
+    `preciounitario` INT NOT NULL,
+    `subtotal` INT NOT NULL,
+    `idpedido` INT NOT NULL,
+    `idfactura` INT NOT NULL,
+    `idservicioproducto` INT NOT NULL,
+    PRIMARY KEY (`iddetallepedido`),
+    CONSTRAINT FK_detallepedido_pedido
+		FOREIGN KEY (`idpedido`) REFERENCES pedido(`idpedido`)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION,
+	CONSTRAINT FK_detallepedido_factura
+		FOREIGN KEY (`idfactura`) REFERENCES factura(`idfactura`)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION,
+	CONSTRAINT FK_detallepedido_servicioproducto
+		FOREIGN KEY (`idservicioproducto`) REFERENCES servicioproducto(`idservicioproducto`)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION
+);
+
+
+CREATE TABLE IF NOT EXISTS establecimiento(
+	`nit` INT NOT NULL,
+    `nombreempresa` VARCHAR(45) NOT NULL,
+    `direccion` VARCHAR(45) NOT NULL,
+    `correo` VARCHAR(45) NOT NULL,
+    PRIMARY KEY (`nit`)
+);
+
+/* TABLA ORDENENTREGA */
+CREATE TABLE IF NOT EXISTS ordenentrega(
+	`idordenentrega` VARCHAR(45) NOT NULL,
+	`fecha` VARCHAR(45) NOT NULL,
+    `hora` VARCHAR(45) NOT NULL,
+    `estado` VARCHAR(45) NOT NULL,
+    `cantidad` VARCHAR(45) NOT NULL,
+    `idrepartidor` INT NOT NULL,
+    `idpedido` INT NOT NULL,
+    PRIMARY KEY (`idordenentrega`),
+    CONSTRAINT FK_ordenentrega_repartidor
+		FOREIGN KEY (`idrepartidor`) REFERENCES repartidor(`numerolicencia`)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION,
+	CONSTRAINT FK_ordenentrega_pedido
+		FOREIGN KEY (`idpedido`) REFERENCES pedido(`idpedido`)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION
+);
+
+/* TABLA INVENTARIO */
+CREATE TABLE IF NOT EXISTS inventario(
+	`id` INT NOT NULL,
+    `idservicioproducto` INT NOT NULL,
+    `idestablecimiento` INT NOT NULL,
+    PRIMARY KEY (`id`),
+    CONSTRAINT FK_inventario_servicioproducto
+		FOREIGN KEY (`idservicioproducto`) REFERENCES servicioproducto(`idservicioproducto`)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION,
+	CONSTRAINT FK_inventario_establecimiento
+		FOREIGN KEY (`idestablecimiento`) REFERENCES establecimiento(`nit`)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION
+);
